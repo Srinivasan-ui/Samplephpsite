@@ -1,5 +1,12 @@
-<?php include 'db.php'; ?>
+<?php
+include 'db.php'; // DB connection
 
+// Handle POST form submit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['name'])) {
+    $newName = $conn->real_escape_string($_POST['name']);
+    $conn->query("INSERT INTO sample_table (name) VALUES ('$newName')");
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,26 +19,23 @@
     <div class="container">
         <h1>🌸 Welcome Chellam 🌸</h1>
 
+        <!-- Add Name Form -->
         <form id="addForm" action="" method="POST">
             <input type="text" name="name" id="name" placeholder="Enter a Name" required>
             <button type="submit">Add</button>
         </form>
 
+        <!-- Saved Names List -->
         <div id="result">
             <h2>Saved Names</h2>
             <ul>
                 <?php
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['name'])) {
-                    $newName = $conn->real_escape_string($_POST['name']);
-                    $conn->query("INSERT INTO sample_table (name) VALUES ('$newName')");
-                }
-
                 $sql = "SELECT id, name FROM sample_table ORDER BY id DESC";
                 $result = $conn->query($sql);
 
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        echo "<li><strong>" . $row["id"]. "</strong> - " . $row["name"]. "</li>";
+                if ($result && $result->num_rows > 0) {
+                    while($row = $result->fetch_assoc()){
+                        echo "<li><strong>" . htmlspecialchars($row['id']) . "</strong> - " . htmlspecialchars($row['name']) . "</li>";
                     }
                 } else {
                     echo "<li>No data yet.</li>";
